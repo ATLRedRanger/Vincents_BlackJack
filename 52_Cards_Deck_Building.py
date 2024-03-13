@@ -26,6 +26,7 @@ class Person:
     
     def __init__(self):
         self.cardsInHand = []
+        self.handValue = 0
         self.currentMoney = 1000
         self.name = ""
 
@@ -71,7 +72,8 @@ class Deck:
         
     def DealACard(self, person):
         person.cardsInHand.append(self.cardsList[0])
-        print(f"The card dealt is the {self.cardsList[0].cardNumber} of {self.cardsList[0].cardSuit}.")
+        print(f"The card dealt to {person.name} is the {self.cardsList[0].cardNumber} of {self.cardsList[0].cardSuit}.")
+        person.handValue += CardValue(self.cardsList[0])
         self.cardsList.pop(0)
 
     def ShuffleDeck(self):
@@ -83,13 +85,15 @@ def main(args):
     player = Person()
     dealer.name = "Dealer"
     player.name = input("Hey, what's your name? ")
-    hasWon = False
+    wantsToPlay = True
     theDeck = Deck()
-    #GamePlayLoop(theDeck, player, dealer)
-    ace = Card("Jack", "Spades")
-    cardValue = CardValue(ace)
-    print(cardValue)
-
+    theDeck.ShuffleDeck()
+    PlayerTurn(player, theDeck)
+    '''
+    while wantsToPlay == True and player.currentMoney > 0:
+        GamePlayLoop(theDeck, player, dealer)
+    '''    
+    
 
     
 def StartBlackJack(deck, player, dealer):
@@ -101,19 +105,22 @@ def StartBlackJack(deck, player, dealer):
 
 def PlaceBet(player):
     validBet = False
-    print(f"You currently have ${player.CurrentMoney}. How much would you like to bet?")
+    print(f"You currently have ${player.currentMoney}. How much would you like to bet?")
     while validBet == False:
-        playerCurrentBet = int(input())
+        playerCurrentBet = input()
         try:
-            if(playerCurrentBet <= player.CurrentMoney):
+            playerCurrentBet = int(playerCurrentBet)
+            if(playerCurrentBet <= player.currentMoney and playerCurrentBet > 0):
                 print(f"You have bet ${playerCurrentBet}")
                 validBet = True
+            else:
+                print("That is not a valid amount.")
         except:
-            print("That is not a valid amount")
+            print("That is not a valid input.")
 
 
 def LostRound(person):
-    print(f"You've lost this round.\nYour current amount of money is ${person.CurrentMoney}.\n")
+    print(f"You've lost this round.\nYour current amount of money is ${person.currentMoney}.")
     validInput = False
     playAgain = False
     
@@ -132,14 +139,32 @@ def LostRound(person):
 
 def GamePlayLoop(deck, player, dealer):
     PlaceBet(player)
-    deck.ShuffleDeck()
     StartBlackJack(deck, player, dealer)
+    PlayerTurn(player, deck)
 
-def PlayerTurn(player):
-    print(f"You currently have {len(player.cardsInHand)} cards in hand.")
-    for i in range(len(player.cardsInHand)):
-        print(f"The {player.cardsInHand[i].cardNumber} of {player.cardsInHand[i].cardSuit}")
-    print(f"Your card total is")
+def HandStatus(person):
+    print(f"{person.name} currently has {len(person.cardsInHand)} card(s) in hand.")
+    for i in range(len(person.cardsInHand)):
+        print(f"The {person.cardsInHand[i].cardNumber} of {person.cardsInHand[i].cardSuit}")
+        
+    print(f"The card(s) in your hand total to {person.handValue}.")
+
+def PlayerTurn(player, deck):
+    HandStatus(player)
+    wantToStay = False
+    while wantToStay == False:
+        userInput = input("Would you like to hit or stay? ")
+        try:
+            if userInput.upper() == "HIT":
+                deck.DealACard(player)
+                HandStatus(player)
+            elif userInput.upper() == "STAY":
+                wantToStay = True
+            else:
+                "That is not valid input."
+        except:
+            "That is not valid input."
+
 
 def CardValue(card):
     cardValue = 0
