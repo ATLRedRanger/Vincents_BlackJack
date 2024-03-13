@@ -130,16 +130,7 @@ def PlayerLost(player, dealer):
     print(f"You've lost this round.\nYour current amount of money is ${player.currentMoney}.")
     if(player.currentMoney <= 0):
         print("You have no more money to play!")
-    else:
-        userInput = input("Would you like to play again?\nYes or No?\n")
-        try:
-            if userInput.upper() == "YES":
-                player.wantsToPlay = True
-                ResetEverything(player, dealer)
-            if userInput.upper() == "NO":
-                player.wantsToPlay = False
-        except:
-            print("That is not valid input.")
+    ResetEverything(player, dealer) 
 
 def PlayerWon(player, dealer):
     print(f"You've won this round.\nYou've gained ${player.currentBet}.")
@@ -155,7 +146,8 @@ def PlayerWon(player, dealer):
             player.wantsToPlay = False
     except:
         print("That is not valid input.")
-    
+    ResetEverything(player, dealer)
+
 def ResetEverything(player, dealer):
     player.cardsInHand = []
     player.handValue = 0
@@ -173,23 +165,46 @@ def ResetEverything(player, dealer):
     dealer.wantsToPlay = True
     dealer.playerTurn = True
 
-
-
+def PlayerWantsToPlayAgain(player, dealer):
+    userInput = input("Would you like to play again?\nYes or No?\n")
+    playAgain = False
+    try:
+        if userInput.upper() == "YES":
+            player.wantsToPlay = True
+            playAgain = True
+            ResetEverything(player, dealer)
+        if userInput.upper() == "NO":
+            player.wantsToPlay = False
+    except:
+        print("That is not valid input.")
+    return playAgain
 
 def GamePlayLoop(deck, player, dealer):
     PlaceBet(player)
     StartBlackJack(deck, player, dealer)
+    print("BEFORE EITHER PLAYER'S TURN")
+    print(f"{player.hasBust} and {player.hasStayed}")
     while player.hasBust == False and player.hasStayed == False:
+        print("PLAYER TURN!")
         PlayerTurn(player, deck)
-    if player.hasBust == True:
-        PlayerLost(player, dealer)
     if player.handValue == 21:
+        print("PLAYER SIDE WON")
         PlayerWon(player, dealer)
+        if PlayerWantsToPlayAgain(player, dealer):
+            return
+    elif player.hasBust == True:
+        print("PLAYER SIDE LOST")
+        PlayerLost(player, dealer)
+        if PlayerWantsToPlayAgain(player, dealer) == False:
+            return 
     while(dealer.hasBust == False and dealer.hasStayed == False):
         DealerTurn(dealer, player, deck)
+    print("EXITING DEALER TURN")
     if dealer.hasBust == False and ((21 - dealer.handValue) <= (21 - player.handValue)):
+        print("DEALER SIDE PLAYER LOST")
         PlayerLost(player, dealer)
     else:
+        print("DEALER SIDE PLAYER WON")
         PlayerWon(player, dealer)
     
 
@@ -201,23 +216,28 @@ def HandStatus(person):
     print(f"The card(s) in {person.name}'s hand total to {person.handValue}.")
 
 def DealerTurn(dealer, player, deck):
+    
     player.playerTurn = False
     HandStatus(dealer)
     distanceTo21 = 21 - dealer.handValue
     playerDistanceTo21 = 21 - player.handValue 
     hasBust = False
     hasStayed = False
+    
     while hasBust == False and hasStayed == False:
         if (dealer.handValue == 21):
             hasStayed = True
             dealer.hasStayed = True
-        elif (dealer.handValue < 21 and dealer.handValue > player.handValue):
+        if (dealer.handValue < 21 and dealer.handValue > player.handValue):
             hasStayed = True
             dealer.hasStayed = True
-        elif (dealer.handValue < player.handValue and distanceTo21 > playerDistanceTo21):
+        if (dealer.handValue < player.handValue and distanceTo21 > playerDistanceTo21):
             deck.DealACard(dealer)
             HandStatus(dealer)
-            
+            if(dealer.handValue > 21):
+                print("DEALER HAS BUST!")
+                dealer.hasBust = True
+                break
             
 
         
