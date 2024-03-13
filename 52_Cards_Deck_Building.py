@@ -76,17 +76,19 @@ class Deck:
 
     def ShuffleDeck(self):
         random.shuffle(self.cardsList)
+        print("The dealer shuffles the deck.")
 
 def main(args):
     dealer = Person()
     player = Person()
     dealer.name = "Dealer"
-    #player.name = input("Hey, what's your name? ")
+    player.name = input("Hey, what's your name? ")
     hasWon = False
-    print("Hello")
     theDeck = Deck()
-    theDeck.ShuffleDeck()
-    StartBlackJack(theDeck, player, dealer)
+    #GamePlayLoop(theDeck, player, dealer)
+    ace = Card("Jack", "Spades")
+    cardValue = CardValue(ace)
+    print(cardValue)
 
 
     
@@ -127,6 +129,40 @@ def LostRound(person):
         except:
             print("That is not valid input.")
     return playAgain
+
+def GamePlayLoop(deck, player, dealer):
+    PlaceBet(player)
+    deck.ShuffleDeck()
+    StartBlackJack(deck, player, dealer)
+
+def PlayerTurn(player):
+    print(f"You currently have {len(player.cardsInHand)} cards in hand.")
+    for i in range(len(player.cardsInHand)):
+        print(f"The {player.cardsInHand[i].cardNumber} of {player.cardsInHand[i].cardSuit}")
+    print(f"Your card total is")
+
+def CardValue(card):
+    cardValue = 0
+    value = False
+    if card.cardNumber == "Ace":
+        while value == False:
+            userInput = input("Would you like this Ace to be counted as 1 or 11? ")
+            try:
+                if int(userInput) == 1 or int(userInput) == 11:
+                    cardValue = int(userInput)
+                    value = True
+                else:
+                    print("That is not a valid number.")
+            except:
+                print("That is not a valid input.")
+    elif card.cardNumber == "Jack" or card.cardNumber == "Queen" or card.cardNumber == "King":
+        cardValue = 10
+    else:
+        cardValue = card.cardNumber
+
+    return cardValue
+
+
 
 if __name__ == "__main__":
     import sys
