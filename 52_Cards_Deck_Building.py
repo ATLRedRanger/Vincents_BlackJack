@@ -136,6 +136,7 @@ def PlayerWon(player, dealer):
     print(f"You've won this round.\nYou've gained ${player.currentBet}.")
     player.currentMoney += player.currentBet
     print(f"Your current amount of money is {player.currentMoney}")
+    '''
     userInput = input("Would you like to play again?\nYes or No?\n")
     try:
         if userInput.upper() == "YES":
@@ -146,6 +147,7 @@ def PlayerWon(player, dealer):
             player.wantsToPlay = False
     except:
         print("That is not valid input.")
+    '''
     ResetEverything(player, dealer)
 
 def ResetEverything(player, dealer):
@@ -166,17 +168,24 @@ def ResetEverything(player, dealer):
     dealer.playerTurn = True
 
 def PlayerWantsToPlayAgain(player, dealer):
-    userInput = input("Would you like to play again?\nYes or No?\n")
     playAgain = False
-    try:
-        if userInput.upper() == "YES":
-            player.wantsToPlay = True
-            playAgain = True
-            ResetEverything(player, dealer)
-        if userInput.upper() == "NO":
-            player.wantsToPlay = False
-    except:
-        print("That is not valid input.")
+    validInput = False
+    
+    while validInput == False:
+        userInput = input("Would you like to play again?\nYes or No?\n")
+        try:        
+            if userInput.upper() == "YES":
+                player.wantsToPlay = True
+                playAgain = True
+                validInput = True
+                ResetEverything(player, dealer)
+            elif userInput.upper() == "NO":
+                player.wantsToPlay = False
+                validInput = True
+            else:
+                print("That is not valid input")
+        except:
+            print("That is not valid input.")
     return playAgain
 
 def GamePlayLoop(deck, player, dealer):
@@ -228,10 +237,10 @@ def DealerTurn(dealer, player, deck):
         if (dealer.handValue == 21):
             hasStayed = True
             dealer.hasStayed = True
-        if (dealer.handValue < 21 and dealer.handValue > player.handValue):
+        if (dealer.handValue < 21 and dealer.handValue >= player.handValue):
             hasStayed = True
             dealer.hasStayed = True
-        if (dealer.handValue < player.handValue and distanceTo21 > playerDistanceTo21):
+        if (dealer.handValue < player.handValue and distanceTo21 >= playerDistanceTo21):
             deck.DealACard(dealer)
             HandStatus(dealer)
             if(dealer.handValue > 21):
